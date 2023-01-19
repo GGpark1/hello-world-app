@@ -16,8 +16,8 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
         """Create, save and return a new user"""
-        if not email:
-            raise ValueError('User must have an email address.')
+        # if not email:
+        #     raise ValueError('User must have an email address.')
 
         p = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$') # noqa
 
