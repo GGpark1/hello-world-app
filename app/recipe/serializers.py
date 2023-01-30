@@ -35,7 +35,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Create a recipe"""
-        # 'tags'가 있다면 Pop 없다면 빈 리스트를 저장
+        # 'tags'가 있다면 pop 없다면 빈 리스트를 저장
         tags = validated_data.pop('tags', [])
         recipe = Recipe.objects.create(**validated_data)
         self._get_or_create_tags(tags, recipe)
