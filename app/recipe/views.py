@@ -2,7 +2,10 @@
 Views for the recipe APIs
 """
 from rest_framework import (viewsets,
-                            mixins,)
+                            mixins,
+                            status,)
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -33,12 +36,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # 클래스 객체를 반환하는 게 아니라 참조할 클래스를 명시하는 것이기 때문에 '()'를 붙이지 않음
         if self.action == 'list':
             return serializers.RecipeSerializer
+        elif self.action =='upload_image':
+            #viewset에 get_serializer_class()에서 사용할 수 있는 action이 정의되어 있음
+            #정의되어 있지 않은 action은 action 모듈을 Import하여 새롭게 정의해야 함
+            return serializers.RecipeImageSerializer
 
         return self.serializer_class
 
     def perform_create(self, serializer):
         """Create a new recipe"""
         serializer.save(user=self.request.user)
+
+    @action(methods=['POST'], detail=True, url_path='upload-image')
+    # viewset은 사전에 정의된 url_path가 있기 때문에 request로 입력되는 endpoint와 action을 연결하기 위해
+    # url_path를 지정해주어야 함
+    def upload_image(self, request, pk=None):
+        """Upload an image to recipe"""
+        recipe = self.get_object()
+        serializer = self.get_serializer(recipe, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BaseRecipeAttrViewSet(mixins.ListModelMixin,
